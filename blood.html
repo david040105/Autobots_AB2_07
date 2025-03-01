@@ -1,0 +1,81 @@
+import hashlib
+import datetime
+
+users = {}
+blood_stock = {}
+reward_points = {}
+
+def hash_password(password):
+    return hashlib.sha256(password.encode()).hexdigest()
+
+def generate_user_id(username):
+    return hashlib.md5(username.encode()).hexdigest()[:10]
+
+def register_user():
+    username = input("Enter Username: ")
+    if username in users:
+        print("User already exists!")
+        return
+    password = input("Enter Password: ")
+    hashed_password = hash_password(password)
+    blood_group = input("Enter Blood Group (A+, A-, B+, B-, O+, O-, AB+, AB-): ").upper()
+    user_id = generate_user_id(username)
+    users[username] = {"id": user_id, "password": hashed_password, "blood_group": blood_group}
+    reward_points[username] = 0
+    print(f"Registration Successful! Your User ID: {user_id}")
+
+def donate_blood():
+    username = input("Enter Username: ")
+    password = input("Enter Password: ")
+    if username not in users or users[username]["password"] != hash_password(password):
+        print("Invalid Credentials!")
+        return
+    blood_group = users[username]["blood_group"]
+    date = datetime.date.today()
+    if blood_group in blood_stock:
+        blood_stock[blood_group].append(date)
+    else:
+        blood_stock[blood_group] = [date]
+    reward_points[username] += 10
+    print(f"Thank you for donating! 10 points added. Your total points: {reward_points[username]}")
+
+def check_blood_availability():
+    blood_group = input("Enter Blood Group to Check Availability: ").upper()
+    if blood_group in blood_stock:
+        print(f"Available Blood Units for {blood_group}: {len(blood_stock[blood_group])}")
+    else:
+        print(f"No blood units available for {blood_group}")
+
+def check_reward_points():
+    username = input("Enter Username: ")
+    if username in reward_points:
+        print(f"{username}, your total reward points: {reward_points[username]}")
+    else:
+        print("User not found!")
+
+def main():
+    while True:
+        print("\nBlood Donation System")
+        print("1. Register")
+        print("2. Donate Blood")
+        print("3. Check Blood Availability")
+        print("4. Check Reward Points")
+        print("5. Exit")
+        choice = input("Enter your choice: ")
+        if choice == "1":
+            register_user()
+        elif choice == "2":
+            donate_blood()
+        elif choice == "3":
+            check_blood_availability()
+        elif choice == "4":
+            check_reward_points()
+        elif choice == "5":
+            print("Exiting... Thank you!")
+            break
+        else:
+            print("Invalid Choice! Try again.")
+
+#Corrected the condition to if __name__ == "__main__":
+if __name__ == "__main__": #This line was changed to fix the NameError
+    main()
